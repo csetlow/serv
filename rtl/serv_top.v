@@ -287,6 +287,18 @@ module serv_top
    reg           ctrl_pc_en_r = 1'b0;
 
    always @(posedge clk) begin
+      if (i_dbus_ack) begin
+         rvfi_mem_addr <= o_dbus_adr;
+         rvfi_mem_rmask <= o_dbus_we ? 4'b0000 : o_dbus_sel;
+         rvfi_mem_wmask <= o_dbus_we ? o_dbus_sel : 4'b0000;
+         rvfi_mem_rdata <= i_dbus_rdt;
+         rvfi_mem_wdata <= o_dbus_dat;
+      end
+      if (rvfi_valid) begin
+         rvfi_mem_rmask <= 4'b0000;
+         rvfi_mem_wmask <= 4'b0000;
+      end
+
       if (i_ibus_ack)
 	insn <= i_ibus_rdt;
 
@@ -316,11 +328,6 @@ module serv_top
          rvfi_rd_wdata <= rd_fv;
          rvfi_pc_rdata <= pc;
          rvfi_pc_wdata <= o_ibus_adr;
-         rvfi_mem_addr <= o_dbus_adr;
-         rvfi_mem_rmask <= 4'bxxxx;
-         rvfi_mem_wmask <= o_dbus_sel;
-         rvfi_mem_rdata <= i_dbus_rdt;
-         rvfi_mem_wdata <= o_dbus_dat;
       end
    end
 `endif
